@@ -38,8 +38,8 @@
 		#include "UnityPBSLighting.cginc"
 		inline half4 LightingToon(SurfaceOutputStandard s, half3 viewDir, UnityGI gi)
 		{
-			float diffuse = saturate(dot(s.Normal, gi.light.dir));
-			return  step(0.3, diffuse);
+				float diffuse = step(0.3,dot(s.Normal, gi.light.dir));
+				return float4(s.Albedo * diffuse + s.Albedo * gi.indirect.diffuse, 0);
 		}
 		inline void LightingToon_GI(SurfaceOutputStandard s, UnityGIInput data, inout UnityGI gi)
 		{
