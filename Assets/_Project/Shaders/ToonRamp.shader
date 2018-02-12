@@ -4,7 +4,11 @@
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
 		_Metallic ("Metallic", Range(0,1)) = 0.0
+		_RampTex("Ramp (RGB)", 2D) = "white" {}
+		_GIPower("GI Power",Range(0,1)) = 0.1	
 	}
+
+
 	SubShader {
 		Tags { "RenderType"="Opaque" }
 		LOD 200
@@ -17,6 +21,8 @@
 		#pragma target 3.0
 
 		sampler2D _MainTex;
+		sampler2D _RampTex;
+		float _GIPower;
 
 		struct Input {
 			float2 uv_MainTex;
@@ -38,8 +44,9 @@
 		#include "UnityPBSLighting.cginc"
 		inline half4 LightingToon(SurfaceOutputStandard s, half3 viewDir, UnityGI gi)
 		{
-				float diffuse = step(0.3,dot(s.Normal, gi.light.dir));
-				return float4(s.Albedo * diffuse + s.Albedo * gi.indirect.diffuse, 0);
+				float diffuse = saturate(dot(s.Normal, gi.light.dir));
+				float3 ramp = tex2D(_RampTex, float2(1-diffuse, 0.5)).rgb;
+				return float4(s.Albedo * ramp + s.Albedo * gi.indirect.diffuse * _GIPower, 0);
 		}
 		inline void LightingToon_GI(SurfaceOutputStandard s, UnityGIInput data, inout UnityGI gi)
 		{
